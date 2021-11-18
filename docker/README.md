@@ -16,6 +16,20 @@ LCD disabled:
 docker run -e ENABLE_LCD=false -it -p 1317:1317 -p 26657:26657 -p 26656:26656 terramoney/core-node:v0.5.11-oracle
 ```
 
+Using a custom home directory: 
+
+```
+docker run -e HOMEDIR="/mnt/data/terra/.terra" -it -p 1317:1317 -p 26657:26657 -p 26656:26656 terramoney/core-node:v0.5.11-oracle
+```
+
+Skipping invarient assertions: 
+
+This will allow the node to start syncing quicker.
+
+```
+ docker run -it -p 1317:1317 -p 26657:26657 -p 26656:26656 terramoney/core-node:v0.5.11-oracle terrad start --x-crisis-skip-assert-invariants
+ ```
+
 Custom gas fees: 
 
 ```

@@ -1,12 +1,17 @@
 #!/bin/sh
 
-# Default to "data".
-DATADIR="${DATADIR:-/root/.terra/data}"
+HOMEDIR="${HOMEDIR:-/root/.terra}"
 MONIKER="${MONIKER:-docker-node}"
 ENABLE_LCD="${ENABLE_LCD:-true}"
 MINIMUM_GAS_PRICES=${MINIMUM_GAS_PRICES-0.01133uluna,0.15uusd,0.104938usdr,169.77ukrw,428.571umnt,0.125ueur,0.98ucny,16.37ujpy,0.11ugbp,10.88uinr,0.19ucad,0.14uchf,0.19uaud,0.2usgd,4.62uthb,1.25usek,1.25unok,0.9udkk,2180.0uidr,7.6uphp,1.17uhkd}
 SNAPSHOT_NAME="${SNAPSHOT_NAME}"
 SNAPSHOT_BASE_URL="${SNAPSHOT_BASE_URL:-https://get.quicksync.io}"
+
+echo HOMEDIR=$HOMEDIR
+echo MONIKER=$MONIKER
+echo ENABLE_LCD=$ENABLE_LCD
+echo SNAPSHOT_NAME=$SNAPSHOT_NAME
+echo SNAPSHOT_BASE_URL=$SNAPSHOT_BASE_URL
 
 # First sed gets the app.toml moved into place.
 # app.toml updates
@@ -24,13 +29,13 @@ sed -i 's/laddr = "tcp:\/\/127.0.0.1:26657"/laddr = "tcp:\/\/0.0.0.0:26657"/g' ~
 
 if [ "$CHAINID" = "columbus-5" ] && [[ ! -z "$SNAPSHOT_NAME" ]] ; then 
   # Download the snapshot if data directory is empty.
-  path=$(ls -A $DATADIR)
+  path=$(ls -A $HOMEDIR)
   if [[ ! -z "$path" ]]; then
       echo "data directory is NOT empty, skipping quicksync"
   else
       echo "starting snapshot download"
-      mkdir -p $DATADIR
-      cd $DATADIR
+      mkdir -p $HOMEDIR
+      cd $HOMEDIR
       FILENAME="$SNAPSHOT_NAME"
 
       # Download
@@ -43,4 +48,10 @@ if [ "$CHAINID" = "columbus-5" ] && [[ ! -z "$SNAPSHOT_NAME" ]] ; then
   fi
 fi
 
-exec "$@" --db_dir $DATADIR
+# Copy configs to the new home.
+if [ "$HOMEDIR" != "/root/.terra" ]; then
+  echo "Copying configs to $HOMEDIR"
+	cp -r /root/.terra/ $HOMEDIR
+fi
+
+exec "$@" --home "$HOMEDIR"
