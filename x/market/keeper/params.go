@@ -6,8 +6,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// BasePoolUpgradeHeight defines the block height where BasePool will be set to zero.
+// This will effectivly prevent market module swaps.
+const BasePoolUpgradeHeight = 7607789
+
 // BasePool is liquidity pool(usdr unit) which will be made available per PoolRecoveryPeriod
 func (k Keeper) BasePool(ctx sdk.Context) (res sdk.Dec) {
+	currHeight := ctx.BlockHeight()
+	if currHeight > BasePoolUpgradeHeight {
+		return sdk.NewDec(0)
+	}
 	k.paramSpace.Get(ctx, types.KeyBasePool, &res)
 	return
 }
